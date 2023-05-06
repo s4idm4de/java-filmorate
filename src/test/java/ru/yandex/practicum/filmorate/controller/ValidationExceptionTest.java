@@ -17,7 +17,7 @@ class ValidationExceptionTest {
     FilmController filmController;
 
     @BeforeEach
-    public void createItems(){
+    public void createItems() {
         String userDate = "2000-12-28T00:00:00Z";
         user = User.builder().name("Идеал").email("i@mail.ru").login("user").birthday(LocalDate.of(2000, 12, 28)).build();
         userController = new UserController();
@@ -27,13 +27,13 @@ class ValidationExceptionTest {
     }
 
     @Test
-    public void noErrorWithCorrectUser() throws ValidationException{
+    public void noErrorWithCorrectUser() throws ValidationException {
         assertEquals(user, userController.create(user));
         assertEquals(user, userController.update(user));
     }
 
     @Test
-    public void userLoginTest(){
+    public void userLoginTest() {
         User user1 = user.toBuilder().login("").build();
         User user2 = user.toBuilder().login("  ").build();
         assertThrows(ValidationException.class, new Executable() {
@@ -58,7 +58,7 @@ class ValidationExceptionTest {
     }
 
     @Test
-    public void userEmailTest(){
+    public void userEmailTest() {
         User user1 = user.toBuilder().email("  ").build();
         User user2 = user.toBuilder().email("pffff").build();
         assertThrows(ValidationException.class, new Executable() {
@@ -83,7 +83,7 @@ class ValidationExceptionTest {
     }
 
     @Test
-    public void userBirthdayTest(){
+    public void userBirthdayTest() {
         User user1 = user.toBuilder().birthday(LocalDate.now().plusDays(1)).build();
         assertThrows(ValidationException.class, new Executable() {
             @Override
@@ -110,7 +110,7 @@ class ValidationExceptionTest {
     }
 
     @Test
-    public void filmNameTest(){
+    public void filmNameTest() {
         Film film1 = film.toBuilder().name("").build();
         Film film2 = film.toBuilder().name("  ").build();
 
@@ -136,7 +136,7 @@ class ValidationExceptionTest {
     }
 
     @Test
-    public void filmDescriptionTest(){
+    public void filmDescriptionTest() {
         String description = "";
         for (int i = 0; i<201; i++){
             description+="a";
@@ -155,7 +155,7 @@ class ValidationExceptionTest {
     }
 
     @Test
-    public void filmReleaseDateTest(){
+    public void filmReleaseDateTest() {
         String filmDate = "1895-12-27T00:00:00Z";
         Film film1 = film.toBuilder().releaseDate(LocalDate.of(1895, 12, 27)).build();
         assertThrows(ValidationException.class, new Executable() {
@@ -170,7 +170,7 @@ class ValidationExceptionTest {
     }
 
     @Test
-    public void filmDurationTest(){
+    public void filmDurationTest() {
         Film film1 = film.toBuilder().duration(-1).build();
         assertThrows(ValidationException.class, new Executable() {
             @Override

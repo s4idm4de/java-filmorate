@@ -14,14 +14,15 @@ import java.util.HashMap;
 public class FilmController {
     private int filmId = 1;
     private final HashMap<Integer, Film> films = new HashMap<>();
+
     @GetMapping
-    public Collection<Film> getAll(){
+    public Collection<Film> getAll() {
         return films.values();
     }
 
     @PostMapping
     public Film create(@RequestBody Film film) throws ValidationException {
-        if (validation(film)){
+        if (validation(film)) {
             if (film.getId() == null) {
                 film.setId(filmId);
                 filmId++;
@@ -35,7 +36,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) throws ValidationException{
+    public Film update(@RequestBody Film film) throws ValidationException {
         if (validation(film) && films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.info("Фильм {} обновлён", film);
@@ -50,7 +51,7 @@ public class FilmController {
         if (film.getDescription().length() > 200) return false;
         if (film.getReleaseDate() != null && film.getReleaseDate()
                 .isBefore(LocalDate.of(1895, 12, 28))) return false;
-        if (film.getDuration() <=0) return false;
+        if (film.getDuration() <= 0) return false;
         return true;
     }
 }

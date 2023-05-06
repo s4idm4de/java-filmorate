@@ -14,13 +14,14 @@ import java.util.HashMap;
 public class UserController {
     private Integer userId = 1;
     private final HashMap<Integer, User> users = new HashMap<>();
+
     @GetMapping
-    public Collection<User> getAll(){
+    public Collection<User> getAll() {
         return users.values();
     }
 
     @PostMapping
-    public User create(@RequestBody User user)  throws ValidationException {
+    public User create(@RequestBody User user) throws ValidationException {
         if (validation(user)) {
             if (user.getId() == null){
                 user.setId(userId);
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User user) throws  ValidationException{
+    public User update(@RequestBody User user) throws ValidationException{
         if (validation(user) && users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("Пользователь {} обновлён", user);
@@ -45,7 +46,7 @@ public class UserController {
         }
     }
 
-    private boolean validation(User user){
+    private boolean validation(User user) {
         if (user.getEmail().isBlank() || !user.getEmail().contains("@")) return false;
         if (user.getLogin().isBlank() || user.getLogin().contains(" ")) return false;
         if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
