@@ -23,7 +23,7 @@ public class UserController {
     @PostMapping
     public User create(@RequestBody User user) throws ValidationException {
         if (validation(user)) {
-            if (user.getId() == null){
+            if (user.getId() == null) {
                 user.setId(userId);
                 userId++;
             }

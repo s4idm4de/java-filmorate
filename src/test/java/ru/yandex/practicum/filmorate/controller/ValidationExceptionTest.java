@@ -18,7 +18,6 @@ class ValidationExceptionTest {
 
     @BeforeEach
     public void createItems() {
-        String userDate = "2000-12-28T00:00:00Z";
         user = User.builder().name("Идеал").email("i@mail.ru").login("user").birthday(LocalDate.of(2000, 12, 28)).build();
         userController = new UserController();
         film = Film.builder().name("Идеал").description("pfff").releaseDate(LocalDate.of(2000, 12, 28))
@@ -38,22 +37,30 @@ class ValidationExceptionTest {
         User user2 = user.toBuilder().login("  ").build();
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.create(user1);}
+            public void execute() throws ValidationException {
+                userController.create(user1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.create(user2);}
+            public void execute() throws ValidationException {
+                userController.create(user2);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.update(user1);}
+            public void execute() throws ValidationException {
+                userController.update(user1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.update(user2);}
+            public void execute() throws ValidationException {
+                userController.update(user2);
+            }
         });
     }
 
@@ -63,22 +70,30 @@ class ValidationExceptionTest {
         User user2 = user.toBuilder().email("pffff").build();
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.create(user1);}
+            public void execute() throws ValidationException {
+                userController.create(user1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.create(user2);}
+            public void execute() throws ValidationException {
+                userController.create(user2);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.update(user1);}
+            public void execute() throws ValidationException {
+                userController.update(user1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.update(user2);}
+            public void execute() throws ValidationException {
+                userController.update(user2);
+            }
         });
     }
 
@@ -87,12 +102,16 @@ class ValidationExceptionTest {
         User user1 = user.toBuilder().birthday(LocalDate.now().plusDays(1)).build();
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.create(user1);}
+            public void execute() throws ValidationException {
+                userController.create(user1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { userController.update(user1);}
+            public void execute() throws ValidationException {
+                userController.update(user1);
+            }
         });
     }
 
@@ -116,41 +135,53 @@ class ValidationExceptionTest {
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.create(film1);}
+            public void execute() throws ValidationException {
+                filmController.create(film1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.create(film2);}
+            public void execute() throws ValidationException {
+                filmController.create(film2);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.update(film1);}
+            public void execute() throws ValidationException {
+                filmController.update(film1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.update(film2);}
+            public void execute() throws ValidationException {
+                filmController.update(film2);
+            }
         });
     }
 
     @Test
     public void filmDescriptionTest() {
         String description = "";
-        for (int i = 0; i<201; i++){
-            description+="a";
+        for (int i = 0; i < 201; i++) {
+            description += "a";
         }
 
         Film film1 = film.toBuilder().description(description).build();
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.create(film1);}
+            public void execute() throws ValidationException {
+                filmController.create(film1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.update(film1);}
+            public void execute() throws ValidationException {
+                filmController.update(film1);
+            }
         });
     }
 
@@ -160,12 +191,16 @@ class ValidationExceptionTest {
         Film film1 = film.toBuilder().releaseDate(LocalDate.of(1895, 12, 27)).build();
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.create(film1);}
+            public void execute() throws ValidationException {
+                filmController.create(film1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.update(film1);}
+            public void execute() throws ValidationException {
+                filmController.update(film1);
+            }
         });
     }
 
@@ -174,13 +209,16 @@ class ValidationExceptionTest {
         Film film1 = film.toBuilder().duration(-1).build();
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.create(film1);}
+            public void execute() throws ValidationException {
+                filmController.create(film1);
+            }
         });
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws ValidationException {
-                filmController.update(film1);}
-            });
+                filmController.update(film1);
+            }
+        });
     }
 }
