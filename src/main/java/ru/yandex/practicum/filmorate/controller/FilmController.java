@@ -46,7 +46,7 @@ public class FilmController {
         }
     }
 
-    private boolean validation(Film film){
+    private boolean validation(Film film) {
         if (film.getName().isBlank()) return false;
         if (film.getDescription().length() > 200) return false;
         if (film.getReleaseDate() != null && film.getReleaseDate()

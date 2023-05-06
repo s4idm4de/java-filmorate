@@ -179,7 +179,8 @@ class ValidationExceptionTest {
 
         assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException { filmController.update(film1);}
-        });
+            public void execute() throws ValidationException {
+                filmController.update(film1);}
+            });
     }
 }
