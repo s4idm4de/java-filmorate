@@ -4,7 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ValidationException extends Exception {
-    ValidationException() {
-        log.error("Ой-ой");
+    ValidationException(String message) {
+        super(message);
+        log.error("Ой-ой {}", message);
     }
 }
