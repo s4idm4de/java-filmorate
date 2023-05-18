@@ -3,11 +3,16 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserControllerTest {
     User user;
@@ -16,7 +21,9 @@ class UserControllerTest {
     @BeforeEach
     public void createItems() {
         user = User.builder().name("Идеал").email("i@mail.ru").login("user").birthday(LocalDate.of(2000, 12, 28)).build();
-        userController = new UserController();
+        InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+        UserService userService = new UserService(inMemoryUserStorage);
+        userController = new UserController(inMemoryUserStorage, userService);
     }
 
     @Test
@@ -49,7 +56,7 @@ class UserControllerTest {
         assertEquals("логин не должен содержать пробелов", exception2.getMessage());
         ValidationException exception3 = assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException {
+            public void execute() throws ValidationException, NotFoundException {
                 userController.update(user1);
             }
         });
@@ -57,7 +64,7 @@ class UserControllerTest {
         assertEquals("логин не должен содержать пробелов", exception3.getMessage());
         ValidationException exception4 = assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException {
+            public void execute() throws ValidationException, NotFoundException {
                 userController.update(user2);
             }
         });
@@ -87,7 +94,7 @@ class UserControllerTest {
         assertEquals("email должен содержать @", exception2.getMessage());
         ValidationException exception3 = assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException {
+            public void execute() throws ValidationException, NotFoundException {
                 userController.update(user1);
             }
         });
@@ -95,7 +102,7 @@ class UserControllerTest {
         assertEquals("email должен содержать @", exception3.getMessage());
         ValidationException exception4 = assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException {
+            public void execute() throws ValidationException, NotFoundException {
                 userController.update(user2);
             }
         });
@@ -114,7 +121,7 @@ class UserControllerTest {
         assertEquals("нельзя родиться в будущем", exception1.getMessage());
         ValidationException exception2 = assertThrows(ValidationException.class, new Executable() {
             @Override
-            public void execute() throws ValidationException {
+            public void execute() throws ValidationException, NotFoundException {
                 userController.update(user1);
             }
         });
@@ -122,7 +129,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void userNameTest() throws ValidationException {
+    public void userNameTest() throws ValidationException, NotFoundException {
         User user1 = user.toBuilder().name("").build();
         assertEquals(user1.getLogin(), userController.create(user1).getName());
         assertEquals(user1.getLogin(), userController.update(user1).getName());
