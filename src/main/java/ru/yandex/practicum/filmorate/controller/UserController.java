@@ -4,10 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.List;
 
@@ -16,32 +14,34 @@ import java.util.List;
 @Slf4j
 public class UserController {
     private final UserService userService;
-    private final InMemoryUserStorage inMemoryUserStorage;
 
     @Autowired
-    public UserController(InMemoryUserStorage inMemoryUserStorage, UserService userService) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    public UserService getUserService() {
+        return userService;
     }
 
     @GetMapping
     public List<User> getAll() {
-        return inMemoryUserStorage.getAll();
+        return userService.getAll();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") Integer userId) throws NotFoundException {
-        return inMemoryUserStorage.getUserById(userId);
+    public User getUserById(@PathVariable("id") Integer userId) {
+        return userService.getUserById(userId);
     }
 
     @PostMapping
-    public User create(@RequestBody User user) throws ValidationException {
-        return inMemoryUserStorage.addUser(user);
+    public User create(@RequestBody User user) {
+        return userService.addUser(user);
     }
 
     @PutMapping
-    public User update(@RequestBody User user) throws NotFoundException, ValidationException {
-        return inMemoryUserStorage.updateUser(user);
+    public User update(@RequestBody User user) {
+        return userService.updateUser(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,28 +20,38 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Integer, Film> films = new HashMap<>();
 
     @Override
-    public Film addFilm(Film film) throws ValidationException, NotFoundException {
-        validation(film);
-        if (film.getId() == null) {
-            film.setId(filmId);
-            filmId++;
-            films.put(film.getId(), film);
-            log.info("Добавлен фильм {}", film);
-            return film;
-        } else {
-            throw new NotFoundException("you shell not pass с id");
+    public Film addFilm(Film film) throws NotFoundException {
+        try {
+            validation(film);
+            if (film.getId() == null) {
+                film.setId(filmId);
+                filmId++;
+                films.put(film.getId(), film);
+                log.info("Добавлен фильм {}", film);
+                return film;
+            } else {
+                throw new NotFoundException("you shell not pass с id");
+            }
+        } catch (ValidationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     @Override
-    public Film updateFilm(Film film) throws ValidationException, NotFoundException {
-        validation(film);
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            log.info("Фильм {} обновлён", film);
-            return film;
-        } else {
-            throw new NotFoundException("нельзя обновить то, у чего нет id");
+    public Film updateFilm(Film film) throws NotFoundException {
+        try {
+            validation(film);
+            if (films.containsKey(film.getId())) {
+                films.put(film.getId(), film);
+                log.info("Фильм {} обновлён", film);
+                return film;
+            } else {
+                throw new NotFoundException("нельзя обновить то, у чего нет id");
+            }
+        } catch (ValidationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
@@ -54,7 +66,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        List<Film> list = new ArrayList<Film>(films.values());
+        List<Film> list = new ArrayList<>(films.values());
         return list;
     }
 

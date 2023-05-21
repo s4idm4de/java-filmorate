@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -19,32 +21,42 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getAll() {
-        return new ArrayList<User>(users.values());
+        return new ArrayList<>(users.values());
     }
 
     @Override
-    public User addUser(User user) throws ValidationException {
-        validation(user);
-        if (user.getId() == null) {
-            user.setId(userId);
-            userId++;
-            users.put(user.getId(), user);
-            log.info("Добавлен пользователь {}", user);
-            return user;
-        } else {
-            throw new ValidationException("нельзя добавлять пользователя с id");
+    public User addUser(User user) throws NotFoundException {
+        try {
+            validation(user);
+            if (user.getId() == null) {
+                user.setId(userId);
+                userId++;
+                users.put(user.getId(), user);
+                log.info("Добавлен пользователь {}", user);
+                return user;
+            } else {
+                throw new NotFoundException("нельзя добавлять пользователя с id");
+            }
+        } catch (ValidationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     @Override
-    public User updateUser(User user) throws NotFoundException, ValidationException {
-        validation(user);
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("Пользователь {} обновлён", user);
-            return user;
-        } else {
-            throw new NotFoundException("нет ручек -- нет конфеток: пользователь должен быть в списке");
+    public User updateUser(User user) throws NotFoundException {
+        try {
+            validation(user);
+            if (users.containsKey(user.getId())) {
+                users.put(user.getId(), user);
+                log.info("Пользователь {} обновлён", user);
+                return user;
+            } else {
+                throw new NotFoundException("нет ручек -- нет конфеток: пользователь должен быть в списке");
+            }
+        } catch (ValidationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
