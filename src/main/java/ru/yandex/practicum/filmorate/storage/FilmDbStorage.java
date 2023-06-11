@@ -38,13 +38,13 @@ public class FilmDbStorage implements FilmStorage {
             String sqlQuery = "update films set " +
                     "name = ?, description = ?, duration = ? , release_date = ?, rating = ?" +
                     "where id = ?";
-            jdbcTemplate.update(sqlQuery
-                    , film.getName()
-                    , film.getDescription()
-                    , film.getDuration()
-                    , film.getReleaseDate()
-                    , film.getMpa().getId()
-                    , film.getId()
+            jdbcTemplate.update(sqlQuery,
+                    film.getName(),
+                    film.getDescription(),
+                    film.getDuration(),
+                    film.getReleaseDate(),
+                    film.getMpa().getId(),
+                    film.getId()
             );
             String sqlDel = "delete from genres where film_id = ?";
             jdbcTemplate.update(sqlDel,
@@ -67,12 +67,12 @@ public class FilmDbStorage implements FilmStorage {
             String sqlQuery = "insert into films(name, description, duration, release_date, rating) " +
                     "values (?, ?, ?, ?, ?)";
 
-            jdbcTemplate.update(sqlQuery
-                    , film.getName()
-                    , film.getDescription()
-                    , film.getDuration()
-                    , film.getReleaseDate()
-                    , film.getMpa().getId()
+            jdbcTemplate.update(sqlQuery,
+                    film.getName(),
+                    film.getDescription(),
+                    film.getDuration(),
+                    film.getReleaseDate(),
+                    film.getMpa().getId()
             );
             SqlRowSet sqlRows = jdbcTemplate.queryForRowSet("select count(*) as last_id from films");
             sqlRows.next();
