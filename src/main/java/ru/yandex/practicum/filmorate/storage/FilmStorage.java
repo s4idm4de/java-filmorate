@@ -15,4 +15,8 @@ public interface FilmStorage {
     List<Film> getAllFilms();
 
     Film getFilmById(Integer filmId) throws NotFoundException;
+
+    void addLikeToFilm(Integer filmId, Integer userId) throws NotFoundException;
+
+    void deleteLikeFromFilm(Integer filmId, Integer userId) throws NotFoundException;
 }

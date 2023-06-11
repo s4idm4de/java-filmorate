@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Component
+@Qualifier("InMemoryFilmStorage")
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private int filmId = 1;
@@ -78,6 +80,30 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("нет фильма с таким id");
         }
     }
+
+    @Override
+    public void addLikeToFilm(Integer filmId, Integer userId) throws NotFoundException {
+        if (films.get(filmId) != null) {
+            log.info("ДОБАВЛЯЕМ ЛАЙК ФИЛЬМУ");
+            films.get(filmId).getLikes().add(userId);
+        } else if (films.get(filmId) == null) {
+            throw new NotFoundException("нет фильма с таким id");
+        } else {
+            throw new NotFoundException("нет пользователя с таким id");
+        }
+    }
+
+    @Override
+    public void deleteLikeFromFilm(Integer filmId, Integer userId) throws NotFoundException {
+        if (films.get(filmId) != null) {
+            films.get(filmId).getLikes().remove(userId);
+        } else if (films.get(filmId) == null) {
+            throw new NotFoundException("нет фильма с таким id");
+        } else {
+            throw new NotFoundException("нет пользователя с таким id");
+        }
+    }
+
 
     private void validation(Film film) throws ValidationException {
         if (film.getName().isBlank())
