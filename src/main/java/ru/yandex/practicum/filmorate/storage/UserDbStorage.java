@@ -38,7 +38,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User addUser(User user) throws NotFoundException {
+    public User addUser(User user) {
         try {
             validation(user);
             String sqlQuery = "insert into users(email, name, login, birthday) " +
