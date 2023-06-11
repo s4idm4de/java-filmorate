@@ -13,7 +13,9 @@ public class Genre {
 
     @Override
     public boolean equals(Object obj) {
-        if (this.getClass() != obj.getClass()){ return false;}
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
         Genre otherTask = (Genre) obj;
         return this.id == otherTask.id;
     }
