@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +28,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User addUser(User user) throws NotFoundException {
         try {
-            validation(user);
+            Validation.userValidation(user);
             if (user.getId() == null) {
                 user.setId(userId);
                 userId++;
@@ -48,7 +47,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User updateUser(User user) throws NotFoundException {
         try {
-            validation(user);
+            Validation.userValidation(user);
             if (users.containsKey(user.getId())) {
                 users.put(user.getId(), user);
                 log.info("Пользователь {} обновлён", user);
@@ -60,11 +59,6 @@ public class InMemoryUserStorage implements UserStorage {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void deleteUser(User user) {
-        users.remove(user.getId());
     }
 
     @Override
@@ -105,13 +99,4 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
-    private void validation(User user) throws ValidationException {
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@"))
-            throw new ValidationException("email должен содержать @");
-        if (user.getLogin().isBlank() || user.getLogin().contains(" "))
-            throw new ValidationException("логин не должен содержать пробелов");
-        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now()))
-            throw new ValidationException("нельзя родиться в будущем");
-    }
 }

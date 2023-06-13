@@ -49,10 +49,6 @@ public class UserService {
         }
     }
 
-    public void deleteUser(User user) {
-        userStorage.deleteUser(user);
-    }
-
     public User getUserById(Integer userId) {
         try {
             return userStorage.getUserById(userId);

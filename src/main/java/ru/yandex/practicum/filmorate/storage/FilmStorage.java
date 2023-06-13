@@ -10,8 +10,6 @@ public interface FilmStorage {
 
     Film addFilm(Film film) throws NotFoundException;
 
-    void deleteFilm(Integer filmId) throws NotFoundException;
-
     List<Film> getAllFilms();
 
     Film getFilmById(Integer filmId) throws NotFoundException;

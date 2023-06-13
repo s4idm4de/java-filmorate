@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -35,25 +34,31 @@ public class FilmDbStorage implements FilmStorage {
     public Film updateFilm(Film film) throws NotFoundException {
         SqlRowSet sqlRows = jdbcTemplate.queryForRowSet("select id from films where id = ?", film.getId());
         if (sqlRows.next()) {
-            String sqlQuery = "update films set " +
-                    "name = ?, description = ?, duration = ? , release_date = ?, rating = ?" +
-                    "where id = ?";
-            jdbcTemplate.update(sqlQuery,
-                    film.getName(),
-                    film.getDescription(),
-                    film.getDuration(),
-                    film.getReleaseDate(),
-                    film.getMpa().getId(),
-                    film.getId()
-            );
-            String sqlDel = "delete from genres where film_id = ?";
-            jdbcTemplate.update(sqlDel,
-                    film.getId());
-            film.getGenres().stream().forEach(genre -> {
-                String sqlGenres = "insert into genres (film_id, genre) " + "values(?, ?)";
-                jdbcTemplate.update(sqlGenres, film.getId(), genre.getId());
-            });
-            return film;
+            try {
+                Validation.filmValidation(film);
+                String sqlQuery = "update films set " +
+                        "name = ?, description = ?, duration = ? , release_date = ?, rating = ?" +
+                        "where id = ?";
+                jdbcTemplate.update(sqlQuery,
+                        film.getName(),
+                        film.getDescription(),
+                        film.getDuration(),
+                        film.getReleaseDate(),
+                        film.getMpa().getId(),
+                        film.getId()
+                );
+                String sqlDel = "delete from genres where film_id = ?";
+                jdbcTemplate.update(sqlDel,
+                        film.getId());
+                film.getGenres().forEach(genre -> {
+                    String sqlGenres = "insert into genres (film_id, genre) " + "values(?, ?)";
+                    jdbcTemplate.update(sqlGenres, film.getId(), genre.getId());
+                });
+                return film;
+            } catch (ValidationException e) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            }
         } else {
             log.info("НЕТ ФИЛЬМА {} ", film.getId());
             throw new NotFoundException("нет такого filma");
@@ -61,9 +66,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film addFilm(Film film) throws NotFoundException {
+    public Film addFilm(Film film) {
         try {
-            validation(film);
+            Validation.filmValidation(film);
             String sqlQuery = "insert into films(name, description, duration, release_date, rating) " +
                     "values (?, ?, ?, ?, ?)";
 
@@ -77,7 +82,7 @@ public class FilmDbStorage implements FilmStorage {
             SqlRowSet sqlRows = jdbcTemplate.queryForRowSet("select count(*) as last_id from films");
             sqlRows.next();
             film.setId(sqlRows.getInt("last_id"));
-            film.getGenres().stream().forEach(genre -> {
+            film.getGenres().forEach(genre -> {
                 String sqlGenres = "insert into genres(film_id, genre) " + "values (?, ?)";
                 jdbcTemplate.update(sqlGenres, film.getId(), genre.getId());
             });
@@ -90,11 +95,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(Integer filmId) {
-
-    }
-
-    @Override
     public List<Film> getAllFilms() {
         String sqlFilms = "select * from films";
         List<Film> films = jdbcTemplate.query(sqlFilms, (filmRows, rowNum) -> Film.builder().id(filmRows.getInt("id"))
@@ -102,7 +102,7 @@ public class FilmDbStorage implements FilmStorage {
                 .duration(filmRows.getInt("duration"))
                 .releaseDate(filmRows.getDate("release_date").toLocalDate())
                 .build());
-        films.stream().forEach(film -> {
+        films.forEach(film -> {
             getGenres(film);
             getLikes(film);
             getMpa(film);
@@ -158,7 +158,7 @@ public class FilmDbStorage implements FilmStorage {
     private void getGenres(Film film) {
         String sqlGenres = "select genre from genres where film_id = ? group by genre";
         List<Integer> genres = jdbcTemplate.query(sqlGenres, (rs, rowNum) -> rs.getInt("genre"), film.getId());
-        genres.stream().forEach(genreId -> {
+        genres.forEach(genreId -> {
             SqlRowSet sqlRows = jdbcTemplate.queryForRowSet("select genre_name from genres_names" +
                     " where genre_id = ?", genreId);
             if (sqlRows.next()) {
@@ -171,7 +171,7 @@ public class FilmDbStorage implements FilmStorage {
     private void getLikes(Film film) {
         String sqlLikes = "select user_id from likes where film_id = ? group by user_id";
         List<Integer> likes = jdbcTemplate.query(sqlLikes, (rs, rowNum) -> rs.getInt("user_id"), film.getId());
-        likes.stream().forEach(like -> film.setLike(like));
+        likes.forEach(like -> film.setLike(like));
     }
 
     private void getMpa(Film film) {
@@ -183,16 +183,4 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private void validation(Film film) throws ValidationException {
-        if (film.getName().isBlank())
-            throw new ValidationException("у фильма должно быть название");
-        if (film.getDescription().length() > 200)
-            throw new ValidationException("сочинения свыше 200 символов никто читать не будет");
-        if (film.getReleaseDate() != null && film.getReleaseDate()
-                .isBefore(LocalDate.of(1895, 12, 28)))
-            throw new ValidationException("курица или яйцо? сначала изобрели камеру, а потом начали снимать фильмы. " +
-                    "Никаких фильмов до 28 декабря 1895 года!");
-        if (film.getDuration() <= 0)
-            throw new ValidationException("фильм должен длиться хоть сколько-то");
-    }
 }

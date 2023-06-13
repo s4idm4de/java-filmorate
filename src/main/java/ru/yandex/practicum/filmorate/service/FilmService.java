@@ -57,15 +57,6 @@ public class FilmService {
         }
     }
 
-    public void deleteFilm(Integer filmId) {
-        try {
-            filmStorage.deleteFilm(filmId);
-        } catch (NotFoundException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, e.getMessage(), e);
-        }
-    }
-
     public List<Film> getAllFilms() {
         return filmStorage.getAllFilms();
     }

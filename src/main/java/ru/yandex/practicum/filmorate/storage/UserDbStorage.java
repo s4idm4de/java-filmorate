@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -33,14 +32,14 @@ public class UserDbStorage implements UserStorage {
         List<User> users = jdbcTemplate.query(sqlUsers, (userRows, rowNum) -> User.builder().id(userRows.getInt("id")).name(userRows.getString("name"))
                 .email(userRows.getString("email")).login(userRows.getString("login"))
                 .birthday(userRows.getDate("birthday").toLocalDate()).build());
-        users.stream().map(user -> addFriends(user));
+        users.forEach(user -> addFriends(user));
         return users;
     }
 
     @Override
     public User addUser(User user) {
         try {
-            validation(user);
+            Validation.userValidation(user);
             String sqlQuery = "insert into users(email, name, login, birthday) " +
                     "values (?, ?, ?, ?)";
             jdbcTemplate.update(sqlQuery,
@@ -62,33 +61,29 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User updateUser(User user) throws NotFoundException {
         SqlRowSet sqlRows = jdbcTemplate.queryForRowSet("select id from users where id = ?", user.getId());
-
         if (sqlRows.next()) {
-
-
-            log.info("ПОЛЬЗОВАТЕЛЬ {} ОБНОВЛЕН", sqlRows.getInt("id"));
-            String sqlQuery = "update users set " +
-                    "name = ?, login = ?, birthday = ? , email = ?" +
-                    "where id = ?";
-            jdbcTemplate.update(sqlQuery,
-                    user.getName(),
-                    user.getLogin(),
-                    user.getBirthday(),
-                    user.getEmail(),
-                    user.getId());
-            return user;
-
+            try {
+                Validation.userValidation(user);
+                log.info("ПОЛЬЗОВАТЕЛЬ {} ОБНОВЛЕН", sqlRows.getInt("id"));
+                String sqlQuery = "update users set " +
+                        "name = ?, login = ?, birthday = ? , email = ?" +
+                        "where id = ?";
+                jdbcTemplate.update(sqlQuery,
+                        user.getName(),
+                        user.getLogin(),
+                        user.getBirthday(),
+                        user.getEmail(),
+                        user.getId());
+                return user;
+            } catch (ValidationException e) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, e.getMessage(), e);
+            }
         } else {
             log.info("НЕТ ПОЛЬЗОВАТЕЛЯ {} ", user.getId());
             throw new NotFoundException("нет такого пользователя");
         }
 
-    }
-
-    @Override
-    public void deleteUser(User user) {
-        String sqlQuery = "delete from users where id = ?";
-        jdbcTemplate.update(sqlQuery, user.getId());
     }
 
     @Override
@@ -137,13 +132,5 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
-    private void validation(User user) throws ValidationException {
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@"))
-            throw new ValidationException("email должен содержать @");
-        if (user.getLogin().isBlank() || user.getLogin().contains(" "))
-            throw new ValidationException("логин не должен содержать пробелов");
-        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now()))
-            throw new ValidationException("нельзя родиться в будущем");
-    }
+
 }
