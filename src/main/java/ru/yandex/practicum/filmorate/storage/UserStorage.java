@@ -12,7 +12,10 @@ public interface UserStorage {
 
     User updateUser(User user) throws NotFoundException;
 
-    void deleteUser(User user);
 
     User getUserById(Integer userId) throws NotFoundException;
+
+    void addToFriends(Integer user1Id, Integer user2Id) throws NotFoundException;
+
+    void deleteFromFriends(Integer user1Id, Integer user2Id) throws NotFoundException;
 }

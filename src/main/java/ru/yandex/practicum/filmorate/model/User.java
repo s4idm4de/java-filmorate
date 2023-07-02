@@ -17,6 +17,7 @@ public class User {
     private LocalDate birthday;
     private final Set<Integer> friends = new HashSet<>();
 
+
     public void setFriends(Integer id) {
         friends.add(id);
     }

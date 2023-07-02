@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class UserService {
+    @Qualifier("UserDbStorage")
     private final UserStorage userStorage;
 
     @Autowired
@@ -28,6 +30,7 @@ public class UserService {
         try {
             return userStorage.updateUser(user);
         } catch (NotFoundException e) {
+            log.info("НУ НЕТ ПОЛЬЗОВАТЕЛЯ");
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
@@ -46,10 +49,6 @@ public class UserService {
         }
     }
 
-    public void deleteUser(User user) {
-        userStorage.deleteUser(user);
-    }
-
     public User getUserById(Integer userId) {
         try {
             return userStorage.getUserById(userId);
@@ -60,32 +59,12 @@ public class UserService {
     }
 
     public void addToFriends(Integer user1Id, Integer user2Id) throws NotFoundException {
-        if (userStorage.getUserById(user1Id) != null && userStorage.getUserById(user2Id) != null) {
-            User user1 = userStorage.getUserById(user1Id);
-            User user2 = userStorage.getUserById(user2Id);
-            log.info("ДОБАВЛЕНИЕ В ДРУЗЬЯ {}", user1);
-            user1.setFriends(user2.getId());
-            user2.setFriends(user1.getId());
-            log.info("ДОБАВЛЕНИЕ В ДРУЗЬЯ {}", user1.getFriends());
-        } else if (userStorage.getUserById(user1Id) == null) {
-            throw new NotFoundException(String.format("Нет пользователя с id {}", user1Id));
-        } else {
-            throw new NotFoundException(String.format("Нет пользователя с id {}", user2Id));
-        }
+        userStorage.addToFriends(user1Id, user2Id);
     }
 
 
     public void deleteFromFriends(Integer user1Id, Integer user2Id) throws NotFoundException {
-        User user1 = userStorage.getUserById(user1Id);
-        User user2 = userStorage.getUserById(user2Id);
-        if (user1 != null && user2 != null) {
-            user1.getFriends().remove(user2.getId());
-            user2.getFriends().remove(user1.getId());
-        } else if (userStorage.getUserById(user1Id) == null) {
-            throw new NotFoundException(String.format("Нет пользователя с id {}", user1Id));
-        } else {
-            throw new NotFoundException(String.format("Нет пользователя с id {}", user2Id));
-        }
+        userStorage.deleteFromFriends(user1Id, user2Id);
     }
 
     public List<User> getFriendsOfUser(Integer userId) throws NotFoundException {

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -8,12 +9,12 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 @Component
+@Qualifier("InMemoryUserStorage")
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
     private Integer userId = 1;
@@ -27,7 +28,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User addUser(User user) throws NotFoundException {
         try {
-            validation(user);
+            Validation.userValidation(user);
             if (user.getId() == null) {
                 user.setId(userId);
                 userId++;
@@ -46,7 +47,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User updateUser(User user) throws NotFoundException {
         try {
-            validation(user);
+            Validation.userValidation(user);
             if (users.containsKey(user.getId())) {
                 users.put(user.getId(), user);
                 log.info("Пользователь {} обновлён", user);
@@ -61,11 +62,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void deleteUser(User user) {
-        users.remove(user.getId());
-    }
-
-    @Override
     public User getUserById(Integer userId) throws NotFoundException {
         if (users.get(userId) == null) {
             throw new NotFoundException("Нет пользователя с таким логином");
@@ -73,13 +69,34 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(userId);
     }
 
-    private void validation(User user) throws ValidationException {
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@"))
-            throw new ValidationException("email должен содержать @");
-        if (user.getLogin().isBlank() || user.getLogin().contains(" "))
-            throw new ValidationException("логин не должен содержать пробелов");
-        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now()))
-            throw new ValidationException("нельзя родиться в будущем");
+    @Override
+    public void addToFriends(Integer user1Id, Integer user2Id) throws NotFoundException {
+        if (users.get(user1Id) != null && users.get(user2Id) != null) {
+            User user1 = users.get(user1Id);
+            User user2 = users.get(user2Id);
+            log.info("ДОБАВЛЕНИЕ В ДРУЗЬЯ {}", user1);
+            user1.setFriends(user2.getId());
+            user2.setFriends(user1.getId());
+            log.info("ДОБАВЛЕНИЕ В ДРУЗЬЯ {}", user1.getFriends());
+        } else if (users.get(user1Id) == null) {
+            throw new NotFoundException(String.format("Нет пользователя с id {}", user1Id));
+        } else {
+            throw new NotFoundException(String.format("Нет пользователя с id {}", user2Id));
+        }
     }
+
+    @Override
+    public void deleteFromFriends(Integer user1Id, Integer user2Id) throws NotFoundException {
+        User user1 = users.get(user1Id);
+        User user2 = users.get(user2Id);
+        if (user1 != null && user2 != null) {
+            user1.getFriends().remove(user2.getId());
+            user2.getFriends().remove(user1.getId());
+        } else if (users.get(user1Id) == null) {
+            throw new NotFoundException(String.format("Нет пользователя с id {}", user1Id));
+        } else {
+            throw new NotFoundException(String.format("Нет пользователя с id {}", user2Id));
+        }
+    }
+
 }

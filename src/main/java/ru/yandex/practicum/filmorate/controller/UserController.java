@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
-@RestController
+@RestControllerAdvice
 @RequestMapping("/users")
 @Slf4j
 public class UserController {

@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.GenresAndRatingDbStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
@@ -25,7 +27,9 @@ class FilmControllerTest {
                 .duration(1).build();
         InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
         InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-        FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        GenresAndRatingDbStorage genresAndRatingDbStorage = new GenresAndRatingDbStorage(jdbcTemplate);
+        FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage, genresAndRatingDbStorage);
         filmController = new FilmController(filmService);
     }
 

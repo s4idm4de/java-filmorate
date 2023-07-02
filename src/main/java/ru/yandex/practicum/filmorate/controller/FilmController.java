@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
 
-@RestController
+@RestControllerAdvice
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
@@ -19,8 +19,6 @@ public class FilmController {
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
-
-    ;
 
     @GetMapping
     public List<Film> getAll() {

@@ -15,5 +15,15 @@ public class Film {
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
+    private Mpa mpa;
     private final Set<Integer> likes = new HashSet<>();
+    private final Set<Genre> genres = new HashSet<>();
+
+    public void setGenre(Genre genre) {
+        genres.add(genre);
+    }
+
+    public void setLike(Integer userId) {
+        likes.add(userId);
+    }
 }
